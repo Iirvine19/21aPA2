@@ -12,8 +12,7 @@ public class Queue<T> {
 	}
 	
 	public void enqueue(T data) {
-		if(size > arr.length) {
-			size++;
+		if(size >= arr.length) {
 			T[] tmp = arr;
 			arr = (T[])new Object[tmp.length * 2];
 			for(int i = 0; i < tmp.length; i++) {
@@ -22,7 +21,7 @@ public class Queue<T> {
 		}
 		decreaseTail();
 		arr[tail] = data;
-		
+		size++;
 	}
 
 	private void decreaseTail() {
@@ -55,5 +54,9 @@ public class Queue<T> {
 	
 	public int size() {
 		return size;
+	}
+	
+	public boolean isEmpty() {
+		return size == 0;
 	}
 }

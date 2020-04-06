@@ -10,6 +10,9 @@ public class WorkEntrySearchNode implements Comparable<WorkEntrySearchNode> {
 	
 	private String key;
 	
+	private WorkEntry[] entries;
+	private int numEntries;
+	
 	private boolean isRoot;
 
 	public WorkEntrySearchNode(String activity) {
@@ -17,6 +20,8 @@ public class WorkEntrySearchNode implements Comparable<WorkEntrySearchNode> {
 		left = null;
 		right = null;
 		parent = null;
+		entries = new WorkEntry[10];
+		numEntries = 0;
 		
 	}
 	
@@ -38,15 +43,36 @@ public class WorkEntrySearchNode implements Comparable<WorkEntrySearchNode> {
 	//last node
 	public WorkEntrySearchNode search(WorkEntrySearchNode node) {
 		if(this.equals(node)) {
-			return this;
+			return splay(this);
 		}
-		if(this.left != null) {
-			WorkEntrySearch
-		}
+		if(this.compareTo(node) >= 0) {
+			if(this.left != null) {
+				return this.left.search(node);
+			}
+		}else if(this.right != null) {
+				return this.right.search(node);
+			}
+		return splay(this);
 	}
 	
 	public WorkEntrySearchNode insert(WorkEntrySearchNode node) {
-		throw new UnsupportedOperationException();
+		WorkEntrySearchNode tmp = this;
+		do {
+			if(tmp.compareTo(node) >= 0) {
+				if(tmp.left == null) {
+					tmp.left = node;
+					tmp.left.parent = tmp;
+				}
+				tmp = tmp.left;
+			}else {
+				if(tmp.right == null) {
+					tmp.right = node;
+					tmp.right.parent = tmp;
+				}
+				tmp = tmp.right;
+			}
+		}while(tmp.left != null || tmp.right != null);
+		return splay(tmp);
 	}
 	
 	public String toString() {
@@ -58,7 +84,15 @@ public class WorkEntrySearchNode implements Comparable<WorkEntrySearchNode> {
 	}
 	
 	public void add(WorkEntry e) {
-		throw new UnsupportedOperationException();
+		if(numEntries >= entries.length) {
+			WorkEntry[] tmp = new WorkEntry[entries.length * 2];
+			for(int i = 0; i < entries.length; i++) {
+				tmp[i] = entries[i];
+			}
+			entries = tmp;
+		}
+		entries[numEntries] = e;
+		numEntries++;
 	}
 	
 	public WorkEntrySearchNode del(int i) {
@@ -66,82 +100,72 @@ public class WorkEntrySearchNode implements Comparable<WorkEntrySearchNode> {
 	}
 	
 	public String getEntryData() {
-		throw new UnsupportedOperationException();
+		String ret = "";
+		int total = 0;
+		for (WorkEntry w : entries) {
+			ret += w.toString() + System.lineSeparator();
+			total += w.getTimeSpent();
+		}
+		return ret + (total + " h");
 	}
 	
 	public String getByRecent() {
-		throw new UnsupportedOperationException();
+		Queue<WorkEntrySearchNode> Q = new Queue<WorkEntrySearchNode>();
+		WorkEntrySearchNode root = this;
+		while (root.parent != null) {
+			root = root.parent;
+		}
+		StringBuilder ret = new StringBuilder();
+		while(!Q.isEmpty()) {
+			WorkEntrySearchNode v = Q.dequeue();
+			ret.append(v.key + System.lineSeparator());
+			if(v.left != null) {
+				Q.enqueue(v.left);
+			}
+			if(v.right != null) {
+				Q.enqueue(v.right);
+			}
+		}
 	}
 	
-	private WorkEntrySearchNode splay(WorkEntrySearchNode root, WorkEntrySearchNode target) {
-		// Base cases: root is null or 
-	    // key is present at root  
-	    if (root == null || root.key.equals(target.key));  
-	        return root;  
-	  
-	    // Key lies in left subtree  
-	    if (root.compareTo(target) < 0)  
-	    {  
-	        // Key is not in tree, we are done  
-	        if (root.left == null) return root;  
-	  
-	        // Zig-Zig (Left Left)  
-	        if (root.left.compareTo(target) > 0)  
-	        {  
-	            // First recursively bring the 
-	            // key as root of left-left  
-	            root.left.left = splay(root.left.left, target);  
-	  
-	            // Do first rotation for root,  
-	            // second rotation is done after else  
-	            root.rotateRight();
-	        }  
-	        else if (root.left.compareTo(target) < 0) // Zig-Zag (Left Right)  
-	        {  
-	            // First recursively bring 
-	            // the key as root of left-right  
-	            root.left.right = splay(root.left.right, target);  
-	  
-	            // Do first rotation for root.left  
-	            if (root.left.right != null)  
-	                root.left.rotateLeft();  
-	        }  
-	  
-	        // Do second rotation for root
-	        if(root.left != null) {
-	        	root.rotateLeft();
-	        }
-	        return root;
-	    }  
-	    else // Key lies in right subtree  
-	    {  
-	        // Key is not in tree, we are done  
-	        if (root.right == null) return root;  
-	  
-	        // Zag-Zig (Right Left)  
-	        if (root.right.key > key)  
-	        {  
-	            // Bring the key as root of right-left  
-	            root.right.left = splay(root.right.left, key);  
-	  
-	            // Do first rotation for root.right  
-	            if (root.right.left != null)  
-	                root.right.rotateRight();  
-	        }  
-	        else if (root.right.compareTo(target) < 0)// Zag-Zag (Right Right)  
-	        {  
-	            // Bring the key as root of  
-	            // right-right and do first rotation  
-	            root.right.right = splay(root.right.right, target);  
-	            root.rotateLeft();  
-	        }  
-	  
-	        // Do second rotation for root  
-	       if (root.right != null){
-	    	   root.rotateRight();
-	    } 
-	       return root;
-	}  
+	public boolean equals(Object other) {
+		return other.getClass().equals(this.getClass()) && ((WorkEntrySearchNode)other).key.equals(this.key);
+	}
+	
+	private WorkEntrySearchNode splay(WorkEntrySearchNode node) {
+		while(node.parent != null) {
+			//Zig
+			if(node.parent.parent == null) {
+				if(node.parent.right.compareTo(node) < 0) {
+					node.rotateLeft();
+				}else {
+					node.rotateRight();
+				}
+			}
+			//Zig Zag RL
+			else if(node.parent == node.parent.parent.left && node == node.parent.right) {
+				node.rotateLeft();
+				node.rotateRight();
+			}
+			
+			//Zig Zag LR
+			else if(node.parent == node.parent.parent.right && node == node.parent.left) {
+				node.rotateRight();
+				node.rotateLeft();
+			}
+			//Zig Zig LL
+			else if(node.parent == node.parent.left) {
+				node.parent.rotateRight();
+				node.rotateRight();
+			}
+			//Zig Zig RR
+			else if(node.parent == node.parent.right) {
+				node.parent.rotateLeft();
+				node.rotateLeft();
+			}
+		}
+		
+		return node;
 	}
 	
 	private void rotateLeft() {
@@ -181,7 +205,4 @@ public class WorkEntrySearchNode implements Comparable<WorkEntrySearchNode> {
 		tmp.right = this;
 		this.parent = tmp;
 	}
-	
-	
-
 }
