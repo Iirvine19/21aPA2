@@ -76,9 +76,18 @@ public class WorkEntrySearchNode implements Comparable<WorkEntrySearchNode> {
 	}
 	
 	public String toString() {
-		throw new UnsupportedOperationException();
+		return inOrder(this);
+		
 	}
 	
+	private String inOrder(WorkEntrySearchNode node) {
+		String ret = inOrder(node.left) + System.lineSeparator();
+		ret += this.key +System.lineSeparator();
+		ret += inOrder(node.right) + System.lineSeparator();
+		return ret;
+		
+	}
+
 	public String getStructure() {
 		throw new UnsupportedOperationException();
 	}
@@ -126,6 +135,7 @@ public class WorkEntrySearchNode implements Comparable<WorkEntrySearchNode> {
 				Q.enqueue(v.right);
 			}
 		}
+		return ret.toString();
 	}
 	
 	public boolean equals(Object other) {

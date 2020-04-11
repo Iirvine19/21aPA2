@@ -2,6 +2,9 @@ package main;
 
 public class WorkTimeAnalysisTool {
 	
+	private WorkEntrySearchNode root;
+
+
 	public WorkTimeAnalysisTool(WorkEntry[] entries) {
 		throw new UnsupportedOperationException();
 	}
@@ -24,7 +27,8 @@ public class WorkTimeAnalysisTool {
 		if (cmd.contains("search")) {
 			String[] cmdArr = cmd.split(" ");
 			cmd = cmdArr[1];
-			
+			WorkEntrySearchNode cmdNode = new WorkEntrySearchNode(cmd);
+			return root.search(cmdNode).toString();
 		}
 	}
 	
