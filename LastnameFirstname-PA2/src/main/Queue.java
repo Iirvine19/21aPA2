@@ -19,31 +19,31 @@ public class Queue<T> {
 				arr[i] = tmp[i];
 			}
 		}
-		decreaseTail();
 		arr[tail] = data;
+		increaseTail();
 		size++;
 	}
 
-	private void decreaseTail() {
-		if (tail == 0) {
-			tail = arr.length;
+	private void increaseTail() {
+		if (tail == arr.length - 1) {
+			tail = 0;
 		}else {
-			tail--;
+			tail++;
 		}
 	}
 	
-	private void decreaseFront() {
-		if (front == 0) {
-			front = arr.length;
+	private void increaseFront() {
+		if (front == arr.length - 1) {
+			front = 0;
 		}else {
-			front--;
+			front++;
 		}
 	}
 
 	public T dequeue() {
 		T temp = arr[front];
 		arr[front] = null;
-		decreaseFront();
+		increaseFront();
 		size--;
 		return temp;
 	}

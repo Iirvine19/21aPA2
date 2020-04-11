@@ -36,7 +36,7 @@ class ExampleToolTest {
 		
 		// list r should reflect recent search even though it was unsuccessful
 		assertEquals("grading hw\ngrading exam\nmet with tas\noffice hours", tool.parse("list r").trim()); 
-		assertEquals("[9/18/2019] office hours (1.5 h): helped students with pa1\n[10/1/2019] office hours (1.0 h):\nTotal: 2.5 h", tool.parse("search \"office hours\"").trim());
+		assertEquals("[9/18/2019] office hours (1.5 h): helped students with pa1\r\n[10/1/2019] office hours (1.0 h):\r\nTotal: 2.5 h", tool.parse("search \"office hours\"").trim());
 		
 		// list r should reflect recent successful search 
 		assertEquals("office hours\nmet with tas\ngrading hw\ngrading exam", tool.parse("list r").trim());
